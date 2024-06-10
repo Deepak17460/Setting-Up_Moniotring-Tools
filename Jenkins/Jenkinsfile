@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'MONITORING_STACK',
+            choices: ['prometheus-grafana', 'elk'],
+            description: 'Choose the monitoring stack to deploy'
+        )
+    }
+
+    stages {
+        stage('Checkout GitLab Code') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/elk-grafana']],
+                          userRemoteConfigs: [[url: 'https://git.nagarro.com/GITG00641/DotNet/deepak-kumar.git',
+                                               credentialsId: 'Nagarro-Gitlab']]])
+            }
+        }
+
+        stage('Deploy Monitoring Stack') {
+            steps {
+                script {
+                    if (params.MONITORING_STACK == 'prometheus-grafana') {
+                        dir('prometheus-grafana') {
+                            withCredentials([file(credentialsId: 'dpcode', variable: 'KUBECONFIG_FILE')]) {
+                                sh """
+                                    chown jenkins:jenkins $KUBECONFIG_FILE
+                                    chmod 600 $KUBECONFIG_FILE
+                                    export KUBECONFIG=$KUBECONFIG_FILE
+                                    chmod +x deploy_prometheus_grafana.sh
+                                    ./deploy_prometheus_grafana.sh
+                                   """
+
+                            }
+                        }
+                    } else if (params.MONITORING_STACK == 'elk') {
+                        dir('Elk') {
+                            withCredentials([file(credentialsId: 'dpcode', variable: 'KUBECONFIG_FILE')]) {
+                                sh """
+                                    chown jenkins:jenkins $KUBECONFIG_FILE
+                                    chmod 600 $KUBECONFIG_FILE
+                                    export KUBECONFIG=$KUBECONFIG_FILE
+                                    kubectl apply -f .
+                                  """
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
