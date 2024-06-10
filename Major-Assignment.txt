@@ -1,0 +1,261 @@
+                                   *****************Major-Assignment*********************
+
+
+
+
+1-> Vm-> Linux Virtual-Machine
+2-> sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+3-> sudo systemctl enable --now kubelet
+4-> sudo vi /etc/hosts
+5-> sudo rm /etc/containerd/config.toml
+6-> sudo systemctl restart containerd
+7-> sudo kubeadm init --apiserver-advertise-address=192.168.56.103 --pod-network-cidr=10.244.0.0/16
+8-> kubeadm join 192.168.56.103:6443 --token l3yn0b.3kfjs114202wc3gm \
+        --discovery-token-ca-cert-hash sha256:20136d23aee2585259c7113c0a952da77677c07a6cdff9bf6ca3ceca71ba5a6f
+
+9-> 
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+10-> sudo firewall-cmd --permanent --add-port=6443/tcp
+sudo firewall-cmd --permanent --add-port=2379-2380/tcp
+sudo firewall-cmd --permanent --add-port=10250/tcp
+sudo firewall-cmd --permanent --add-port=10251/tcp
+sudo firewall-cmd --permanent --add-port=10252/tcp
+sudo firewall-cmd --permanent --add-port=10255/tcp
+sudo firewall-cmd --reload
+10-> ip a s
+11-> containers:
+- name: kube-flannel
+  image: docker.io/flannel/flannel:v0.25.2
+  command:
+  - /opt/bin/flanneld
+  args:
+  - --ip-masq
+  - --kube-subnet-mgr
+  - --flannel-iface=enp0s8  # Add this line
+12-> kubectl apply -f kube-flannel.yml
+13-> helm lint
+14-> sudo swapoff -a
+
+**************************Helm-Chart*******************
+1-> helm install java-apitest-release ./java-apitest
+2-> kubectl get pods --namespace default
+3-> kubectl --namespace default port-forward java-apitest-pod 8080:8080
+4-> kubectl get pods --namespace default -o wide
+5-> kubectl describe pod java-apitest-release-5bbcb584b5-jjmnt --namespace default
+6-> kubectl get ds -n kube-system
+7-> kubectl get nodes
+8-> kubectl delete pod java-apitest-release-5bbcb584b5-jjmnt --namespace default<NameOfAnyPod>
+9-> kubectl get all --all-namespaces
+10->kubectl get pods
+11->kubectl get service
+12->kubectl top pod --< NameOfPod>
+13-> kubectl apply -f . ----> run the multiple manifestfiles
+
+
+**********************Helm-Commands****************
+1-> Helm list a
+2-> kubectl get nodes -o wide
+3-> kubectl describe pod java-apitest-release-5bbcb584b5-vps4r --namespace default
+4-> sudo systemctl restart kubelet
+5-> sudo systemctl status kubelet
+6-> kubectl get services --namespace default
+7-> curl http://$NODE_IP:$NODE_PORT
+8-> kubectl logs <your-pod-name> --namespace default
+9-> kubectl describe pod <pod-name> --namespace default
+10-> kubectl get deployment
+11-> kubectl get service
+12-> helm install java-release ./java-deployment
+13-> helm status java-release<name of helm project>
+14-> kubectl get pod -n monitoring
+15-> helm repo list
+17-> helm repo remove -> repo-name
+16-> helm list -> to checko release using helm list
+18-> helm uninstall <release-name>
+19-> kubectl get nodes -o wide
+20-> Helm init
+21-> Helm repo add
+22-> Helm install --name <namespace> -f ./speccial-file-name 
+a-> Test cluster health using Helm test
+  i-> Helm test namespace
+23-> kubectl get all --all-namespaces -l release=kibana
+24-> helm search <nameofrepo>
+
+
+
+                          **************************Kubernetes-COmmands*******************************
+
+
+
+1-> kubectl logs <nameofpod>     --> For Debugging
+2-> kubectl describe <nameofpod> --> For Debugging the pod
+0-> kubectl describe pod <NameOfPod>
+3-> kubectl get pvc
+3-> kubectl get all
+4-> kubectl get all -A
+5-> kubectl get deploy or deployment   ---> list all NameSpace from cluster
+6-> kubectl delete deploy <NameOfPod>
+7-> kubectl get pods -o wide
+8-> kubectl create namespace elasticsearch
+9-> kubectl get pods --namespace=default -l app=elasticsearch-master -w
+10-> kubectl get namespaces
+11-> kubectl get pods -n or -name elasticsearch<AnyNameForNameSpace>   or ---> pod which is name of container which is running
+12->  Watch all cluster members come up.
+  $ kubectl get pods --namespace=default -l app=elasticsearch-master -w
+2. Retrieve elastic user's password.
+  $ kubectl get secrets --namespace=default elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
+3. Test cluster health using Helm test.
+  $ helm --namespace=default test elasticsearch
+
+13->  kubectl get pods -o wide
+14-> kubectl get service kibana -n <namespace>
+15-> kubectl get pods --all-namespaces
+16-> kubectl get pods -n default<NameSpace>
+
+
+
+
+
+
+
+****To login in Kubernetes Cluster****  --> Kubernetes which is a Robust-Platform
+
+i-> minikube ssh
+2-> curl <IP>
+
+i-> Internal or External access of the deployed application in Cluster-->
+Expose Your Deployed Application: After deploying your application with Helm charts, you would expose it so that it can be accessed. This could be done by creating a Service of type ClusterIP for internal access, NodePort for external access on a specific port, or LoadBalancer for external access with a load balancer provided by your cloud provide.
+
+ii-> Prometheus and Grafana work together to render monitoring. Prometheus takes care of data fetching as a data source and feeds that data into Grafana, which can be used to visualize data with attractive dashboards.
+
+
+                           ************Prometheus-Grafana******
+
+1-> kubectl edit svc monitoring-grafana -n default
+2-> kubectl edit svc monitoring-grafana -n default
+3-> kubectl get svc --all-namespaces | grep grafana
+4-> Side-Car -> ELK, Prometheus & Grafana. Valina -> no chnages yet
+
+                          *************Viva-Points************
+
+0-> Just to verify your single-node Kubernetes cluster is up and running, use:
+i-> kubectl cluster-info
+ii->kubectl cluster-info dump
+
+1-> http://192.168.56.103:30375/home --> Java-deployment
+2-> http://192.168.56.103:30090/ --> Prometheus
+3-> http://192.168.56.103:32000/ --> Grafana
+4-> helm serach repo <nameofrepo>
+5-> kubectl get service elasticsearch-master -o=jsonpath='{.spec.ports[?(@.port==9200)].nodePort}'
+6-> kubectl get all -l release=kibana-new
+7-> kubectl get namespace
+8-> kubectl delete namespace nagarro
+9-> kubectl get events -n nagarro
+10-> kubectl get pod -A
+11-> kubectl delete pod <nameofpod>
+12-> kubectl delete pod kibana-logging-d57b4b496-knfd4 -n nagarro
+13-> kubectl cluster-info
+
+  ***********************Java-application*********************
+
+1-> Parent-Pom-> Child-Pom
+2-> Import module in POM in parent-pom
+3-> kubectl describe svc elasticsearch-master<POD>
+
+
+4-> 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1   localhost
+192.168.56.103   master
+192.168.56.104   worker
+---> vi /etc/hosts
+
+5-->
+ flux bootstrap github \
+>   --owner=your-github-username \
+>   --repository=your-repo \
+>   --branch=main \
+>   --path=clusters/my-cluster \
+>   --personal
+Please enter your GitHub personal access token (PAT):
+[root@master ~]# flux bootstrap gitlab   --owner=Deepak_1   --repository=flux-dpcode   --branch=main   --path=clusters/my-cluster   --personal
+Please enter your GitLab personal access token (PAT):
+
+6--->
+
+    flux bootstrap gitlab   --owner=Deepak_1   --repository=flux-dpcode   --branch=main   --path=clusters/my-cluster   --personal
+Please enter your GitLab personal access token (PAT):
+► connecting to https://gitlab.com
+✔ repository "https://gitlab.com/Deepak_1/flux-dpcode" created
+► cloning branch "main" from Git repository "https://gitlab.com/Deepak_1/flux-dpcode.git"
+✔ cloned repository
+► generating component manifests
+✔ generated component manifests
+✔ committed component manifests to "main" ("39be476a94265f3183a98fe94fc99b7291aa66c9")
+► pushing component manifests to "https://gitlab.com/Deepak_1/flux-dpcode.git"
+► installing components in "flux-system" namespace
+✔ installed components
+✔ reconciled components
+► determining if source secret "flux-system/flux-system" exists
+► generating source secret
+✔ public key: ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBMRu/t2gSGl6Lgo1sUbAvyMWmBdlbZsKK7cGAsU0Gqv92SvJX5ZKmS2bXAJxNO+9Q4PBz0riixsv3q+Zu0hJLBR2EVdhx/RBGpVfJMDHzJhp/a2bvZ9WntWnJK2VR/RoWA==
+✔ configured deploy key "flux-system-main-flux-system-./clusters/my-cluster" for "https://gitlab.com/Deepak_1/flux-dpcode"
+► applying source secret "flux-system/flux-system"
+✔ reconciled source secret
+► generating sync manifests
+✔ generated sync manifests
+✔ committed sync manifests to "main" ("14a0f98373569ea5c8dcef7c9490ded40530b7fd")
+► pushing sync manifests to "https://gitlab.com/Deepak_1/flux-dpcode.git"
+► applying sync manifests
+✔ reconciled sync configuration
+◎ waiting for GitRepository "flux-system/flux-system" to be reconciled
+✔ GitRepository reconciled successfully
+◎ waiting for Kustomization "flux-system/flux-system" to be reconciled
+✔ Kustomization reconciled successfully
+► confirming components are healthy
+✔ helm-controller: deployment ready
+✔ kustomize-controller: deployment ready
+✔ notification-controller: deployment ready
+✔ source-controller: deployment ready
+✔ all components are healthy
+--> Git-Repo-Url https://gitlab.com/Deepak_1/flux-dpcode.git
+
+
+----> Kubernetes
+
+1-> kubectl get events -n flux-system
+2-> 
+
+
+
+*********Importnat-Point**********
+1-> remove Ip from env_variables : and make it as variable
+2-> join_token, Remove Ip from this & make it a variable
+
+
+
+
+*******The things which is installed while setting up K8S on Centos or On-Premise*****
+##------> kubectl get pods -n kube-system
+1-> Kubectl
+2-> Docker-Container
+3-> kubeadm
+4-> kubelet
+****Important configuration which needs to be configured while setting up K8S*****
+5-> coredns
+6-> etcd-master
+7-> kube-apiserver
+8-> kube-controller-manager
+9-> kube-scheduler
+10-> kube-proxy (K8S or Kube)
+
+
+--> kubeadm init --apiserver-advertise-address $AD_ADDR --pod-network-cidr={{cidr_v}}
+
+sudo yum install -y curl
+curl -s https://fluxcd.io/install.sh | sudo bash
+flux --version
+
+
