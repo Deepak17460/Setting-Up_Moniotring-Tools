@@ -13,8 +13,8 @@ pipeline {
         stage('Checkout GitLab Code') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/elk-grafana']],
-                          userRemoteConfigs: [[url: 'https://git.nagarro.com/GITG00641/DotNet/deepak-kumar.git',
-                                               credentialsId: 'Nagarro-Gitlab']]])
+                          userRemoteConfigs: [[url: '',
+                                               credentialsId: '']]])
             }
         }
 
